@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_main">Lint File演示</string>
+    <string name="title_register_permisstions">权限申请</string>
+    <string name="text_register_external_storage_permission">获取外部存储权限</string>
+    <string name="text_register_manage_external_permission">申请所有文件访问权限</string>
+    <string name="title_dialog_file_info">文件详情</string>
+    <string name="format_file_name">文件名：%s</string>
+    <string name="text_confirom">确定</string>
+    <string name="format_file_size">文件大小：%s</string>
+    <string name="format_file_last_update">修改日期：yyyy年MM月dd日 HH:mm:ss</string>
+    <string name="text_permission_external_storage">应用需要授予【外部存储】权限才能正常运行，点击【确定】按钮授权</string>
+    <string name="text_permission_manage_storage">应用需要授予【访问所有文件】权限才能正常运行，点击【确定】按钮授权</string>
+    <string name="text_permission_storage_access_framework">应用需要授予文件夹权限权限才能正常运行，点击【确定】按钮跳转授权</string>
+    <string name="title_request_permission">授予文件访问权限</string>
+    <string name="text_file_is_null">文件访问失败</string>
+    <string name="text_permission_su">应用需要授予Root权限才能正常运行，请允许应用使用Root权限</string>
+    <string name="text_permission_shizuku">应用需要授予Shizuku权限才能正常运行，请允许应用使用权限</string>
+</resources>
