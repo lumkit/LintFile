@@ -60,3 +60,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 ```
+
+4. Get start
+   I will compile it when I am free next time.😁
