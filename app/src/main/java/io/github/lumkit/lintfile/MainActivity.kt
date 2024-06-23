@@ -111,8 +111,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val lintFileConfiguration = LintFileConfiguration.instance
-        lintFileConfiguration.init(this)
+        LintFileConfiguration.instance.init(this)
 
         setContent {
             LintFileTheme {
