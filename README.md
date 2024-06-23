@@ -1,8 +1,8 @@
 # Lint File
 
 [![License](https://img.shields.io/github/license/lumkit/LintFile)](LICENSE)
-[![Version](https://img.shields.io/github/v/release/lumkit/LintFile?include_prereleases)](https://github.com/lumkit/LintFile/releases)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.lumkit/LintFile)](https://central.sonatype.com/artifact/io.github.lumkit/LintFile/)
+[![Version](https://img.shields.io/github/v/release/lumkit/lint-file?include_prereleases)](https://github.com/lumkit/lint-file/releases)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.lumkit/lint-file)](https://central.sonatype.com/artifact/io.github.lumkit/lint-file/)
 
 A file operation library suitable for Android platform.
 
