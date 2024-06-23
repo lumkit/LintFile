@@ -92,9 +92,9 @@ mavenPublishing {
     )
 
     pom {
-        name.set("lint-compose-ui")
-        description.set("A Compose Desktop UI framework supporting global theme control. (aka LintUI)")
-        url.set("https://github.com/lumkit/lint-ui")
+        name.set("lint-file-android")
+        description.set("A file operation library suitable for Android platform.")
+        url.set("https://github.com/lumkit/LintFile")
 
         licenses {
             license {
@@ -112,9 +112,9 @@ mavenPublishing {
         }
 
         scm {
-            url.set("https://github.com/lumkit/lint-ui")
-            connection.set("scm:git:git://github.com/lumkit/lint-ui.git")
-            developerConnection.set("scm:git:ssh://github.com/lumkit/lint-ui.git")
+            url.set("https://github.com/lumkit/LintFile")
+            connection.set("scm:git:git://github.com/lumkit/LintFile.git")
+            developerConnection.set("scm:git:ssh://github.com/lumkit/LintFile.git")
         }
     }
 }

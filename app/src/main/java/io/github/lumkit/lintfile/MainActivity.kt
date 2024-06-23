@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
 
         LintFileConfiguration.instance.init(this)
 
-        setContent {
+         setContent {
             LintFileTheme {
                 Greeting()
             }
