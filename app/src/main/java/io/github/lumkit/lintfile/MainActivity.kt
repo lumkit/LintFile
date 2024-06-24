@@ -81,9 +81,6 @@ import io.github.lumkit.io.LintFileConfiguration
 import io.github.lumkit.io.data.IoModel
 import io.github.lumkit.io.data.PermissionType
 import io.github.lumkit.io.file
-import io.github.lumkit.io.impl.ShizukuFile
-import io.github.lumkit.io.impl.SuFile
-import io.github.lumkit.io.openInputStream
 import io.github.lumkit.io.requestAccessPermission
 import io.github.lumkit.io.shell.ShizukuUtil
 import io.github.lumkit.io.takePersistableUriPermission
@@ -91,13 +88,10 @@ import io.github.lumkit.io.use
 import io.github.lumkit.lintfile.model.MainViewModel
 import io.github.lumkit.lintfile.ui.theme.LintFileTheme
 import io.github.lumkit.lintfile.util.FileSizeConverter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Collections
@@ -113,7 +107,7 @@ class MainActivity : ComponentActivity() {
 
         LintFileConfiguration.instance.init(this)
 
-         setContent {
+        setContent {
             LintFileTheme {
                 Greeting()
             }

@@ -79,4 +79,9 @@ class ShizukuFile : LintFile {
         val cmd = "mv -f \"$path\" \"${getParent()}/$dest\" && echo 1 || echo 0"
         return AdbShellPublic.doCmdSync(cmd) == "1"
     }
+
+    fun clear(): Boolean {
+        val cmd = "(echo -n > \"$path\") && echo 1 || echo 0"
+        return AdbShellPublic.doCmdSync(cmd) == "1"
+    }
 }

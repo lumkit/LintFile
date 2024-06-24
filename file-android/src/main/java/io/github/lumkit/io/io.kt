@@ -3,7 +3,7 @@ package io.github.lumkit.io
 import android.os.Build
 import android.os.Environment
 import android.system.ErrnoException
-import android.system.Os
+import com.topjohnwu.superuser.Shell
 import io.github.lumkit.io.data.IoModel
 import io.github.lumkit.io.impl.DefaultFile
 import io.github.lumkit.io.impl.ShizukuFile
@@ -18,6 +18,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.UUID
+import java.util.concurrent.FutureTask
+import java.util.concurrent.TimeUnit
 
 /**
  * 创建一个通用的File
@@ -120,28 +122,38 @@ fun createTempFIFO(): File {
 //    fifo.delete()
 //    Os.mkfifo(fifo.path, 644)
 //    return fifo
-    val fifoDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), ".lint-file-tmp")
+    val fifoDir = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+        ".lint-file-tmp"
+    )
     if (!fifoDir.exists()) fifoDir.mkdirs()
     val fifo = File(fifoDir, "lintfile-fifo-${UUID.randomUUID()}.tmp")
     fifo.createNewFile()
 //    fifo.delete()
-    println(fifo)
-
     return fifo
 }
 
 private fun ShizukuFile.newInputStream(): InputStream {
     if (isDirectory() || !canRead()) throw FileNotFoundException("No such file or directory: $path")
+
     var f: File? = null
-    return try {
+    try {
         val fifo = createTempFIFO()
         f = fifo
-        println(AdbShellPublic.doCmdSync("(cat \"$path\" > \"${fifo.absolutePath}\") && echo 1 || echo 0"))
-        FileInputStream(fifo)
-    }catch (e: Exception) {
+        val cmd = "cat \"$path\" > \"${fifo.absolutePath}\" &"
+        AdbShellPublic.doCmdSync(cmd)
+        // Open the fifo only after the shell request
+        val stream = FutureTask<InputStream> {
+            FileInputStream(
+                fifo
+            )
+        }
+        Shell.EXECUTOR.execute(stream)
+        return stream[FIFO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS]
+    } catch (e: Exception) {
         if (e is FileNotFoundException) throw e
         val cause = e.cause
-        if (cause is FileNotFoundException) throw (cause as FileNotFoundException?)!!
+        if (cause is FileNotFoundException) throw cause
         val err = FileNotFoundException("Cannot open fifo").initCause(e)
         throw (err as FileNotFoundException)
     } finally {
@@ -149,22 +161,37 @@ private fun ShizukuFile.newInputStream(): InputStream {
     }
 }
 
+private const val FIFO_TIMEOUT = 250
 private fun ShizukuFile.newOutputStream(): OutputStream {
     if (isDirectory()) throw FileNotFoundException("$path is not a file but a directory")
-    if (!canWrite()) throw FileNotFoundException("Cannot write to file $path")
+
+    if (!canWrite() && !createNewFile()) {
+        throw FileNotFoundException("Cannot write to file $path")
+    } else if (!clear()) {
+        throw FileNotFoundException("Failed to clear file $path")
+    }
+
     var f: File? = null
-    return try {
+    try {
         val fifo = createTempFIFO()
         f = fifo
-        AdbShellPublic.doCmdSync("cat \"$path\" > \"${fifo.absolutePath}\" 2>/dev/null &")
-        FileOutputStream(fifo)
-    }catch (e: Exception) {
+        val cmd = "cat \"${fifo.absolutePath}\" > \"$path\" &"
+        AdbShellPublic.doCmdSync(cmd)
+
+        // Open the fifo only after the shell request
+        val stream = FutureTask<OutputStream> { FileOutputStream(fifo) }
+        Shell.EXECUTOR.execute(stream)
+        return stream[FIFO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS]
+    } catch (e: java.lang.Exception) {
         if (e is FileNotFoundException) throw e
         val cause = e.cause
-        if (cause is FileNotFoundException) throw (cause as FileNotFoundException?)!!
+        if (cause is FileNotFoundException) throw cause
         val err = FileNotFoundException("Cannot open fifo").initCause(e)
         throw (err as FileNotFoundException)
     } finally {
-        f?.delete()
+        f?.let {
+            AdbShellPublic.doCmdSync("mv -f \"${it.absolutePath}\" \"${this.path}\"")
+            it.delete()
+        }
     }
 }
