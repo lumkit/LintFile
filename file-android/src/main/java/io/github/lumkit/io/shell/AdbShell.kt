@@ -75,7 +75,7 @@ class AdbShell {
 
     private val shellOutputCache = StringBuilder()
     private val endTag = "|<<SH|"
-    private val endTagBytes = "\necho '$endTag'\n".toByteArray(Charset.defaultCharset())
+    private val endTagBytes = "echo '$endTag'\n".toByteArray(Charset.defaultCharset())
 
 
     fun doCmdSync(cmd: String): String {
@@ -86,13 +86,11 @@ class AdbShell {
         try {
             mLock.lockInterruptibly()
             currentIsIdle = false
-
             out?.run {
-                write(cmd.toByteArray(Charset.defaultCharset()))
+                write("$cmd\n".toByteArray(Charset.defaultCharset()))
                 write(endTagBytes)
                 flush()
             }
-
             reader?.also {
                 shellOutputCache.clear()
                 while (true) {

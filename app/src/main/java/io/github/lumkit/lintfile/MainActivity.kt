@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        takePersistableUriPermission(0x000002, requestCode, resultCode, data)
+        takePersistableUriPermission(12138, requestCode, resultCode, data)
     }
 
     override fun onDestroy() {

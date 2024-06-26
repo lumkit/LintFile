@@ -62,7 +62,7 @@ fun file(dir: LintFile, child: String): LintFile =
  * 创建用户权限级别的File
  */
 private fun createUserFile(path: String): LintFile =
-    if (isSafDir(path)) {
+    if (isSafDir(path.pathHandle(true))) {
         StorageAccessFrameworkFile(path)
     } else {
         DefaultFile(path)
@@ -90,9 +90,11 @@ fun LintFile.openInputStream(): InputStream =
     when (this) {
         is SuFile -> suFile.newInputStream()
 
-        is StorageAccessFrameworkFile -> LintFileConfiguration.instance.context.contentResolver.openInputStream(
-            documentFile?.uri ?: throw IOException("No such file or directory")
-        ) ?: throw throw IOException("No such file or directory")
+        is StorageAccessFrameworkFile -> LintFileConfiguration.instance
+            .context
+            .contentResolver
+            .openInputStream(path.documentReallyUri())
+            ?: throw throw IOException("No such file or directory")
 
         is ShizukuFile -> newInputStream()
 
@@ -104,10 +106,11 @@ fun LintFile.openOutputStream(): OutputStream =
     when (this) {
         is SuFile -> suFile.newOutputStream()
 
-        is StorageAccessFrameworkFile -> LintFileConfiguration.instance.context.contentResolver.openOutputStream(
-            documentFile?.uri ?: throw IOException("No such file or directory"),
-            "rwt"
-        ) ?: throw throw IOException("No such file or directory")
+        is StorageAccessFrameworkFile -> LintFileConfiguration.instance
+            .context
+            .contentResolver
+            .openOutputStream(path.documentReallyUri(), "rwt")
+            ?: throw throw IOException("No such file or directory")
 
         is ShizukuFile -> newOutputStream()
         else -> FileOutputStream(path)
@@ -129,19 +132,16 @@ fun createTempFIFO(): File {
     if (!fifoDir.exists()) fifoDir.mkdirs()
     val fifo = File(fifoDir, "lintfile-fifo-${UUID.randomUUID()}.tmp")
     fifo.createNewFile()
-//    fifo.delete()
     return fifo
 }
 
 private fun ShizukuFile.newInputStream(): InputStream {
     if (isDirectory() || !canRead()) throw FileNotFoundException("No such file or directory: $path")
-
-    var f: File? = null
     try {
         val fifo = createTempFIFO()
-        f = fifo
-        val cmd = "cat \"$path\" > \"${fifo.absolutePath}\" &"
-        AdbShellPublic.doCmdSync(cmd)
+        val cmd = "(cat \"$path\" > \"${fifo.absolutePath}\") && echo 1 || echo 0"
+        if (AdbShellPublic.doCmdSync(cmd) == "0")
+            throw FileNotFoundException("cat: $path: Permission denied")
         // Open the fifo only after the shell request
         val stream = FutureTask<InputStream> {
             FileInputStream(
@@ -149,19 +149,28 @@ private fun ShizukuFile.newInputStream(): InputStream {
             )
         }
         Shell.EXECUTOR.execute(stream)
-        return stream[FIFO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS]
+        val inputStream = stream[FIFO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS]
+        return object : InputStream() {
+            override fun read(): Int = inputStream.read()
+            override fun read(b: ByteArray?): Int = inputStream.read(b)
+            override fun read(b: ByteArray?, off: Int, len: Int): Int = inputStream.read(b, off, len)
+            override fun available(): Int = inputStream.available()
+            override fun close() {
+                inputStream.close()
+                fifo.delete()
+            }
+        }
     } catch (e: Exception) {
         if (e is FileNotFoundException) throw e
         val cause = e.cause
         if (cause is FileNotFoundException) throw cause
         val err = FileNotFoundException("Cannot open fifo").initCause(e)
         throw (err as FileNotFoundException)
-    } finally {
-        f?.delete()
     }
 }
 
 private const val FIFO_TIMEOUT = 250
+
 private fun ShizukuFile.newOutputStream(): OutputStream {
     if (isDirectory()) throw FileNotFoundException("$path is not a file but a directory")
 
@@ -171,27 +180,51 @@ private fun ShizukuFile.newOutputStream(): OutputStream {
         throw FileNotFoundException("Failed to clear file $path")
     }
 
-    var f: File? = null
     try {
         val fifo = createTempFIFO()
-        f = fifo
-        val cmd = "cat \"${fifo.absolutePath}\" > \"$path\" &"
-        AdbShellPublic.doCmdSync(cmd)
+        val cmd = "(cat \"${fifo.absolutePath.replace("\u200d", "")}\" > \"${path.replace("\u200d", "")}\") && echo 1 || echo 0"
+        if (AdbShellPublic.doCmdSync(cmd) == "0")
+            throw FileNotFoundException("Cannot write to file $path")
 
         // Open the fifo only after the shell request
         val stream = FutureTask<OutputStream> { FileOutputStream(fifo) }
         Shell.EXECUTOR.execute(stream)
-        return stream[FIFO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS]
+        val outputStream = stream[FIFO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS]
+        return object : OutputStream() {
+            override fun write(b: Int) {
+                outputStream.write(b)
+            }
+
+            override fun write(b: ByteArray) {
+                outputStream.write(b)
+            }
+
+            override fun write(b: ByteArray, off: Int, len: Int) {
+                outputStream.write(b, off, len)
+            }
+
+            override fun flush() {
+                outputStream.flush()
+            }
+
+            override fun close() {
+                if (!fifo.exists())
+                    throw FileNotFoundException("No such file or directory: $path")
+                try {
+                    outputStream.close()
+                } finally {
+                    val doCmdSync = AdbShellPublic.doCmdSync( "(mv -f \"${fifo.path}\" \"${path.replace("\u200d", "")}\") && echo 1 || echo 0")
+                    if (doCmdSync == "0") {
+                        throw FileNotFoundException("Cannot write to file $path")
+                    }
+                }
+            }
+        }
     } catch (e: java.lang.Exception) {
         if (e is FileNotFoundException) throw e
         val cause = e.cause
         if (cause is FileNotFoundException) throw cause
         val err = FileNotFoundException("Cannot open fifo").initCause(e)
         throw (err as FileNotFoundException)
-    } finally {
-        f?.let {
-            AdbShellPublic.doCmdSync("mv -f \"${it.absolutePath}\" \"${this.path}\"")
-            it.delete()
-        }
     }
 }
