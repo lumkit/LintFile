@@ -70,7 +70,7 @@ fun String.getPrivateRootPath(): String {
     val builder = StringBuilder()
     for (i in 0 until if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) 6 else 5) {
         builder.append("/")
-            .append(list[i])
+            .append(list[i].replace("\u200d", ""))
     }
     return builder.toString()
 }

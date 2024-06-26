@@ -35,7 +35,7 @@ repositories {
 
 ```kotlin
 dependencies {
-    implementation("io.github.lumkit:lint-file:1.0.2")
+    implementation("io.github.lumkit:lint-file:1.0.3")
 }
 ```
 

@@ -1,6 +1,7 @@
 package io.github.lumkit.io.impl
 
 import io.github.lumkit.io.LintFile
+import io.github.lumkit.io.pathHandle
 import java.io.File
 
 class SuFile: LintFile {
@@ -29,7 +30,7 @@ class SuFile: LintFile {
     constructor(file: LintFile, child: String): super(file, child)
 
     internal val suFile by lazy {
-        com.topjohnwu.superuser.io.SuFile(path)
+        com.topjohnwu.superuser.io.SuFile(path.pathHandle(false))
     }
 
     override fun exists(): Boolean = suFile.exists()

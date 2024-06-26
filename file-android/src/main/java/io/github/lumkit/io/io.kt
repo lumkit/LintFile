@@ -82,7 +82,7 @@ fun String.pathHandle(hide: Boolean = true): String =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && hide) {
         this.replace("Android", "Android\u200d")
     } else {
-        this
+        this.replace("\u200d", "")
     }
 
 @Throws(IOException::class)
