@@ -52,7 +52,7 @@ class AdbShell {
                     try {
                         val errorReader = process?.errorStream?.bufferedReader()
                         while (true) {
-                            println(errorReader?.readLine())
+                            println("adb shell error: ${errorReader?.readLine()}")
                         }
                     } catch (ex: Exception) {
                         Log.e("c", "" + ex.message)

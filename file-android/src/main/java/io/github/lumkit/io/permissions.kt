@@ -12,6 +12,7 @@ import io.github.lumkit.io.data.PermissionType
 import io.github.lumkit.io.impl.SuFile
 import io.github.lumkit.io.jni.LintJni
 import io.github.lumkit.io.shell.ShizukuUtil
+import rikka.shizuku.Shizuku
 
 /**
  * 文件权限安全作用域
@@ -31,7 +32,7 @@ fun LintFile.use(
             }
         }
         IoModel.SHIZUKU -> {
-            if (ShizukuUtil.checkPermission()) {
+            if (ShizukuUtil.checkPermission() && Shizuku.pingBinder()) {
                 granted()
             } else {
                 onRequestPermission(PermissionType.SHIZUKU)

@@ -280,7 +280,24 @@ private fun Content() {
 
                 // 加载文件列表
                 currentList.clear()
-                val files = it.listFiles().sortedBy { file -> file.path }
+
+                val files = it.listFiles().sortedWith(
+                    compareBy(
+                        { file -> !file.name.startsWith(".") },
+                        { file -> !file.name.startsWith("-") },
+                        { file -> !file.isDirectory() }, // 文件夹优先
+                        { file ->
+                            val name = file.name
+                            when {
+                                name[0].isUpperCase() -> 0
+                                name[0].isLowerCase() -> 1
+                                else -> 2
+                            }
+                        },
+                        { file -> file.name } // 按文件名排序
+                    )
+                )
+
                 currentList.addAll(files)
 
                 loadDialogState.value = false
@@ -569,7 +586,17 @@ private fun Content() {
                             PermissionType.SU -> {
 
                             }
-                            PermissionType.SHIZUKU -> ShizukuUtil.requestPermission()
+
+                            PermissionType.SHIZUKU -> try {
+                                ShizukuUtil.requestPermission()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                Toast.makeText(
+                                    activity,
+                                    R.string.text_shizuku_service_is_not_active,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 ) {

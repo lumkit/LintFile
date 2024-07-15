@@ -35,12 +35,12 @@ class DefaultFile : LintFile {
     override fun delete(): Boolean = _file.delete()
 
     override fun list(): Array<String> = _file.list()?.map {
-        "${getParent()}${File.separator}$it"
+        "$path${File.separator}$it"
     }?.toTypedArray() ?: arrayOf()
 
     override fun list(filter: (String) -> Boolean): Array<String> =
         _file.list { dir, name -> filter("${dir}${File.separator}$name") }?.map {
-            "${getParent()}${File.separator}$it"
+            "${path}${File.separator}$it"
         }?.toTypedArray() ?: arrayOf()
 
     override fun listFiles(): Array<LintFile> =

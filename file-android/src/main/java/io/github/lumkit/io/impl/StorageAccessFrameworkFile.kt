@@ -65,9 +65,7 @@ class StorageAccessFrameworkFile : LintFile {
         val list = ArrayList<String>()
         if (this.documentFile != null) {
             val listFiles = this.documentFile.listFiles()
-            listFiles.forEach {
-                list.add(it.uri.absolutePath().replace("\u200d", ""))
-            }
+            list.addAll(listFiles.map { it.uri.absolutePath().replace("\u200d", "") })
         }
         return list.toTypedArray()
     }
@@ -76,10 +74,10 @@ class StorageAccessFrameworkFile : LintFile {
         val list = ArrayList<String>()
         if (this.documentFile != null) {
             val listFiles = this.documentFile.listFiles()
-            listFiles.forEach {
-                if (filter(it.name ?: ""))
-                    list.add(it.uri.absolutePath().replace("\u200d", ""))
-            }
+            list.addAll(
+                listFiles.filter { filter(it.name ?: "") }
+                    .map { it.uri.absolutePath().replace("\u200d", "") }
+            )
         }
         return list.toTypedArray()
     }

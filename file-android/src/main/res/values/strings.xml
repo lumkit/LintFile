@@ -16,4 +16,5 @@
     <string name="text_file_is_null">文件访问失败</string>
     <string name="text_permission_su">应用需要授予Root权限才能正常运行，请允许应用使用Root权限</string>
     <string name="text_permission_shizuku">应用需要授予Shizuku权限才能正常运行，请允许应用使用权限</string>
+    <string name="text_shizuku_service_is_not_active">Shizuku未激活！</string>
 </resources>
