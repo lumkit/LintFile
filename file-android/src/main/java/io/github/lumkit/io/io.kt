@@ -69,21 +69,23 @@ private fun createUserFile(path: String): LintFile =
     }
 
 fun isSafDir(path: String): Boolean {
-    val canRead = File(path).canRead()
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && path.startsWith(
-        File(
+    val canRead = File(path.pathHandle()).canRead()
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && path.pathHandle(false).startsWith(
+        (File(
             Environment.getExternalStorageDirectory(),
             "Android"
-        ).absolutePath + "/"
+        ).absolutePath + "/").pathHandle(false)
     ) && !canRead
 }
 
-fun String.pathHandle(hide: Boolean = true): String =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && hide) {
+fun String.pathHandle(hide: Boolean = true): String {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && hide && File(this.replace("Android", "Android\u200d")).canRead()) {
         this.replace("Android", "Android\u200d")
     } else {
         this.replace("\u200d", "")
     }
+}
+
 
 @Throws(IOException::class)
 fun LintFile.openInputStream(): InputStream =

@@ -6,25 +6,6 @@ import java.io.File
 
 class SuFile: LintFile {
 
-    companion object {
-        init {
-            System.loadLibrary("shell-file")
-        }
-    }
-
-    private external fun exists(path: String): Boolean
-    private external fun canRead(path: String): Boolean
-    private external fun canWrite(path: String): Boolean
-    private external fun isDirectory(path: String): Boolean
-    private external fun isFile(path: String): Boolean
-    private external fun lastModified(path: String): Long
-    private external fun length(path: String): Long
-    private external fun createNewFile(path: String): Boolean
-    private external fun deletePath(path: String): Boolean
-    private external fun mkdirs(path: String): Boolean
-    private external fun renameTo(path: String, dest: String): Boolean
-    private external fun list(path: String): Array<String>?
-
     constructor(path: String): super(path)
     constructor(file: LintFile): super(file)
     constructor(file: LintFile, child: String): super(file, child)

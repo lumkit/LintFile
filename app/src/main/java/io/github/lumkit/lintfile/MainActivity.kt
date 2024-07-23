@@ -76,15 +76,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.github.lumkit.io.LintFile
-import io.github.lumkit.io.LintFileConfiguration
+import io.github.lumkit.io.*
 import io.github.lumkit.io.data.IoModel
 import io.github.lumkit.io.data.PermissionType
-import io.github.lumkit.io.file
-import io.github.lumkit.io.requestAccessPermission
+import io.github.lumkit.io.impl.DefaultFile
 import io.github.lumkit.io.shell.ShizukuUtil
-import io.github.lumkit.io.takePersistableUriPermission
-import io.github.lumkit.io.use
 import io.github.lumkit.lintfile.model.MainViewModel
 import io.github.lumkit.lintfile.ui.theme.LintFileTheme
 import io.github.lumkit.lintfile.util.FileSizeConverter
@@ -106,6 +102,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         LintFileConfiguration.instance.init(this)
+        DefaultFile("").openOutputStream()
 
         setContent {
             LintFileTheme {
