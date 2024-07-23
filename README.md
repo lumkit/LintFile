@@ -132,7 +132,7 @@
           }
       }
       ```
-   * 文件API操作（与java.io.File类型，这里就不过多赘述）
+   * 文件API操作（与java.io.File类似，这里就不过多赘述）
       ```kotlin
       // 获取Lint File实例
       val file = file("/x/xx/xxx")
