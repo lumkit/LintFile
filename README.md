@@ -128,7 +128,7 @@
           // 在此保存/Android/data的文件访问权限！
           override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
               super.onActivityResult(requestCode, resultCode, data)
-              takePersistableUriPermission(12138, requestCode, resultCode, data)
+              takePersistableUriPermission(0x000002, requestCode, resultCode, data)
           }
       }
       ```
